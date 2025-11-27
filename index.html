@@ -83,13 +83,12 @@
         display: none;
     }
 </style>
-
 </head>
 <body>
 
 <div class="container" id="ui">
-    <h1>Generate Copy Link</h1>
-    <textarea id="input" placeholder="Type or paste the text you want to share..."></textarea>
+    <h1>Generate Compressed Copy Link</h1>
+    <textarea id="input" placeholder="Type or paste text here..."></textarea>
     <button onclick="generateLink()">Generate Link</button>
 
     <div class="output" id="output"></div>
@@ -97,6 +96,10 @@
     <div class="copied" id="copiedMsg">Copied!</div>
 </div>
 
+<!-- LZ-String compression library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+
 <script src="clipboard.js"></script>
+
 </body>
 </html>
