@@ -1,53 +1,60 @@
-// 1. READ TEXT FROM URL HASH
-const raw = decodeURIComponent(window.location.hash.substring(1)).trim();
+// Read hash (compressed)
+let hash = window.location.hash.substring(1).trim();
 
-// If no text provided, show the generator UI
-if (!raw) {
+// If there is no compressed text, show UI
+if (!hash) {
     document.getElementById("ui").style.display = "block";
 } else {
-    autoCopy(raw);
+    // Decompress
+    let text = LZString.decompressFromEncodedURIComponent(hash);
+
+    if (!text) {
+        document.body.innerHTML = "<h1 style='color:#f55;font-family:Segoe UI;text-align:center;margin-top:40vh;'>Invalid or corrupted link</h1>";
+    } else {
+        autoCopy(text);
+    }
 }
 
 
-// -------------------------------
+// ------------------------------------
 // AUTO COPY MODE
-// -------------------------------
+// ------------------------------------
 async function autoCopy(text) {
     try {
         await navigator.clipboard.writeText(text);
-        document.body.innerHTML = "<h1 style='color:#7fff7f;font-family:Segoe UI;text-align:center;margin-top:40vh;'>Copied ✔</h1>";
+        document.body.innerHTML = "<h1 style='color:#7fff7f;text-align:center;margin-top:40vh;'>Copied ✔</h1>";
     } catch {
-        const ta = document.createElement("textarea");
+        let ta = document.createElement("textarea");
         ta.value = text;
         document.body.appendChild(ta);
         ta.select();
         document.execCommand("copy");
         ta.remove();
-
-        document.body.innerHTML = "<h1 style='color:#7fff7f;font-family:Segoe UI;text-align:center;margin-top:40vh;'>Copied ✔ (fallback)</h1>";
+        document.body.innerHTML = "<h1 style='color:#7fff7f;text-align:center;margin-top:40vh;'>Copied ✔ (fallback)</h1>";
     }
 
     setTimeout(() => window.open("", "_self").close(), 250);
 }
 
 
-// -------------------------------
-// GENERATOR UI MODE
-// -------------------------------
+// ------------------------------------
+// GENERATOR MODE
+// ------------------------------------
 function generateLink() {
     const text = document.getElementById("input").value.trim();
     if (!text) return;
 
-    const encoded = encodeURIComponent(text);
-    const link = `${window.location.origin}${window.location.pathname}#${encoded}`;
+    // Compress text
+    const compressed = LZString.compressToEncodedURIComponent(text);
+
+    // Build link
+    const link = `${window.location.origin}${window.location.pathname}#${compressed}`;
 
     const output = document.getElementById("output");
     output.textContent = link;
     output.style.display = "block";
 
-    const copyBtn = document.getElementById("copyBtn");
-    copyBtn.style.display = "block";
-
+    document.getElementById("copyBtn").style.display = "block";
     document.getElementById("copiedMsg").style.display = "none";
 }
 
@@ -57,7 +64,7 @@ async function copyLink() {
     try {
         await navigator.clipboard.writeText(link);
     } catch {
-        const ta = document.createElement("textarea");
+        let ta = document.createElement("textarea");
         ta.value = link;
         document.body.appendChild(ta);
         ta.select();
