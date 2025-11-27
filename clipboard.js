@@ -1,24 +1,21 @@
-// Parse URL param: ?t=your text here
-const params = new URLSearchParams(window.location.search);
-const text = params.get("t") || "";
+// Read everything after the "#"
+const raw = decodeURIComponent(window.location.hash.substring(1));
 
-// Decode + cleanup
-const decoded = decodeURIComponent(text.replace(/\+/g, " "));
-
-// Function to copy text to clipboard
 async function doCopy() {
-    if (!decoded) {
-        document.body.innerHTML = "No text provided.";
+    const text = raw.trim();
+
+    if (!text) {
+        document.body.innerHTML = "No text found.";
         return;
     }
 
     try {
-        await navigator.clipboard.writeText(decoded);
+        await navigator.clipboard.writeText(text);
         document.body.innerHTML = "Copied ✔";
-    } catch (err) {
-        // Fallback: create hidden textarea
+    } catch {
+        // fallback
         const ta = document.createElement("textarea");
-        ta.value = decoded;
+        ta.value = text;
         document.body.appendChild(ta);
         ta.select();
         document.execCommand("copy");
@@ -26,10 +23,9 @@ async function doCopy() {
         document.body.innerHTML = "Copied ✔ (fallback)";
     }
 
-    // Give browser 300ms, then close if allowed
     setTimeout(() => {
-        window.open("","_self").close();
-    }, 300);
+        window.open("", "_self").close();
+    }, 200);
 }
 
 doCopy();
